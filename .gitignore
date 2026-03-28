@@ -1,0 +1,13 @@
+# Büyük dosyalar
+*.AppImage
+
+# Log dosyaları
+*.log
+logs/
+
+# Hassas bilgiler
+.env
+
+# Python
+__pycache__/
+*.pyc

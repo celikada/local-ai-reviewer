@@ -1,0 +1,85 @@
+services:
+
+  # ─────────────────────────────────────────
+  # 1. OLLAMA — AI model motoru
+  # ─────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    # GPU varsa aşağıdaki bloğu aç:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ─────────────────────────────────────────
+  # 2. MODEL YÜKLEYICI — ilk açılışta modelleri indirir
+  # ─────────────────────────────────────────
+  model-puller:
+    image: curlimages/curl:latest
+    container_name: model-puller
+    depends_on:
+      - ollama
+    restart: "no"
+    entrypoint: >
+      sh -c "
+        echo 'Ollama hazır olana kadar bekleniyor...';
+        until curl -sf http://ollama:11434/api/tags > /dev/null; do sleep 3; done;
+        echo 'qwen2.5-coder:14b indiriliyor (~9GB)...';
+        curl -s http://ollama:11434/api/pull -d '{\"name\":\"qwen2.5-coder:14b\"}';
+        echo 'nomic-embed-text indiriliyor...';
+        curl -s http://ollama:11434/api/pull -d '{\"name\":\"nomic-embed-text\"}';
+        echo 'Modeller hazır.';
+      "
+
+  # ─────────────────────────────────────────
+  # 3. ANYTHINGLLM — PDF & RAG arayüzü
+  # ─────────────────────────────────────────
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - anythingllm_data:/app/server/storage
+    environment:
+      - STORAGE_DIR=/app/server/storage
+    depends_on:
+      - ollama
+
+  # ─────────────────────────────────────────
+  # 4. GITLAB REVIEWER — webhook dinleyici
+  # ─────────────────────────────────────────
+  gitlab-reviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gitlab-reviewer
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./logs:/logs
+    environment:
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - GITLAB_URL=${GITLAB_URL}
+      - OLLAMA_URL=http://ollama:11434/api/generate
+      - LOG_FILE=/logs/kod_inceleme.log
+    depends_on:
+      - ollama
+
+volumes:
+  ollama_models:
+  anythingllm_data:
