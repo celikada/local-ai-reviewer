@@ -206,12 +206,16 @@ Değerlendirmeni şu formatta yaz:
                     "num_thread": 8
                 }
             },
-            timeout=2000,
+            timeout=3000,
         )
         r.raise_for_status()
         return r.json().get("response", "[Yanıt alınamadı]")
     except Exception as e:
+        log(f"Ollama kritik hata: {e}")
+        if "Read timed out" in str(e):
+            return "Bunu review ederken kör oldum sanırım. Benden bu kadar :P \n\n*(Not: Kod değişikliği çok büyük olduğu için AI analiz süresi doldu.)*"
         return f"[Ollama hatası: {e}]"
+
 
 
 def mr_yorum_yaz(project_id: int, mr_iid: int, yorum: str) -> bool:
