@@ -1,0 +1,8 @@
+Öldür
+pkill -f mr_reviewer.py
+
+Çalıştır
+source ~/.profile && GITLAB_TOKEN=$GITLAB_TOKEN python3 /home/celikada/Projeler/localAI/mr_reviewer.py
+
+İzle
+tail -f /home/celikada/Projeler/localAI/mr_inceleme.log
