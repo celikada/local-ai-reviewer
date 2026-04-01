@@ -163,12 +163,13 @@ def mr_diff_ve_degisiklik_getir(project_id: int, mr_iid: int):
 
 
 def ollama_incele(diff: str, mr_baslik: str, yazar: str, kaynak: str, hedef: str, ajan_standartlari: str) -> str:
-    prompt = f"""Sen bir kıdemli yazılım mühendisisin ve kod inceleme yapıyorsun.
-Aşağıdaki Merge Request'i (MR) sana verilen uzman ajan standartlarına göre titizlikle incele.
+    bugun = datetime.now().strftime("%Y-%m-%d")
+    prompt = f"""Sen çok kıdemli bir yazılım mimarı ve kod inceleme uzmanısın. 
+Aşağıdaki Merge Request'i (MR) sana verilen uzman ajan standartlarına göre titizlikle incele ve profesyonel bir rapor hazırla.
 
-MR Başlığı: {mr_baslik}
-Yazar: {yazar}
-Kaynak Branch: {kaynak} → Hedef Branch: {hedef}
+**ÖNEMLİ: KESİNLİKLE TÜRKÇE YAZ VE AŞAĞIDAKİ FORMATI BİREBİR UYGULA.**
+
+MR Bağlamı: {mr_baslik} (Yazar: {yazar}, {kaynak} -> {hedef})
 
 {ajan_standartlari}
 
@@ -176,24 +177,54 @@ Kaynak Branch: {kaynak} → Hedef Branch: {hedef}
 {diff}
 --- İNCELENECEK DIFF SONU ---
 
-Lütfen yukarıdaki uzman standartlarını (Backend, Güvenlik, Veritabanı vb.) baz alarak yapıcı, teknik derinliği olan ve Türkçe bir değerlendirme yap. 
+Raporunu TAM OLARAK şu formatta oluştur:
 
-**Önemli:** Değerlendirmendeki her bir maddeyi hangi uzmanlık alanına (ajan) göre yazdığını köşeli parantez içinde belirt. 
-Örnek: `[Backend] Metot ismi standartlara uygun değil.` veya `[Güvenlik] SQL Injection riski tespit edildi.`
-
-Değerlendirmeni şu formatta yaz:
-
-## Genel Değerlendirme
-(Kısa özet)
-
-## Sorunlar ve Standart İhlalleri
-(Ajan standartlarına aykırı noktaları madde madde belirt)
-
-## Öneriler
-(Daha iyi bir çözüm veya fix önerileri)
+# Kod İnceleme Raporu — {mr_baslik}
 
 ---
-*Bu yorum AI kod inceleme ajanı tarafından dinamik uzman kuralları kullanılarak oluşturulmuştur. Model: {OLLAMA_MODEL}*"""
+
+## Kritik Bulgular (Varsa)
+(Hata, veri kaybı, güvenlik açığı veya thread leak gibi ciddi sorunlar)
+
+### K-1 — (Bulgu Başlığı)
+- **Konum**: `dosya_yolu:satır_no` (Eğer belliyse)
+- **Sorun**: (Teknik detaylı açıklama)
+- **Öneri**: 
+  ```java
+  // Varsa düzeltilmiş kod örneği
+  ```
+
+---
+
+## Önemli Bulgular (Varsa)
+(Kod kalitesi, performans veya idiomatik olmayan kullanımlar)
+
+### O-1 — (Bulgu Başlığı)
+- **Konum**: `dosya_yolu:satır_no`
+- **Sorun**: (Açıklama)
+- **Öneri**: (Çözüm yolu)
+
+---
+
+## Öneri Bulguları
+(Style, naming, checkstyle veya ufak iyileştirmeler)
+
+| # | Konum | Açıklama |
+|---|---|---|
+| R-1 | `dosya_yolu` | (Kısa açıklama) |
+
+---
+
+## Genel Değerlendirme
+
+**Mimari**: (Genel mimari yapı hakkında yorum)
+
+**Test Kapsamı**: (Varsa test dosyaları hakkında yorum)
+
+**Sonuç**: (✅ Merge önerilir / ❌ Merge önerilmez / ⚠️ Düzeltmelerle merge edilebilir)
+
+---
+*Bu rapor AI kod inceleme ajanı tarafından dinamik uzman kuralları kullanılarak oluşturulmuştur. Model: {OLLAMA_MODEL}*"""
 
     try:
         r = requests.post(
@@ -206,7 +237,7 @@ Değerlendirmeni şu formatta yaz:
                     "num_thread": 8
                 }
             },
-            timeout=3000,
+            timeout=7200,
         )
         r.raise_for_status()
         return r.json().get("response", "[Yanıt alınamadı]")
