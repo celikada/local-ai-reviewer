@@ -17,7 +17,7 @@ GITLAB_TOKEN      = os.environ.get("GITLAB_TOKEN", "")  # Ortam değişkeninden 
 WEBHOOK_SECRET    = os.environ.get("WEBHOOK_SECRET", "")  # GitLab webhook secret
 OLLAMA_URL        = "http://localhost:11434/api/generate"
 OLLAMA_MODEL      = "qwen2.5-coder:14b"
-LOG_FILE          = "/home/celikada/Projeler/localAI/kod_inceleme.log"
+LOG_FILE          = "kod_inceleme.log"
 MAX_DIFF_CHARS    = 8000  # Çok büyük diff'leri kırp
 # ----------------
 

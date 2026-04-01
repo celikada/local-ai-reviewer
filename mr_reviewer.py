@@ -17,9 +17,9 @@ OLLAMA_MODEL    = os.environ.get("OLLAMA_MODEL", "qwen2.5-coder:14b")
 POLL_INTERVAL   = 600          # saniye (10 dakika)
 MAX_DIFF_CHARS  = 8000
 HEDEF_NAMESPACE = "mmatss"     # sadece bu namespace'i incele, "" ise hepsini incele
-STATE_FILE      = "/home/celikada/Projeler/localAI/mr_reviewed.json"
-LOG_FILE        = "/home/celikada/Projeler/localAI/mr_inceleme.log"
-AGENT_DIR       = "/home/celikada/Projeler/localAI/.claude/agents"
+STATE_FILE      = "mr_reviewed.json"
+LOG_FILE        = "mr_inceleme.log"
+AGENT_DIR       = ".claude/agents"
 AI_IMZA         = "AI kod inceleme ajanı tarafından otomatik oluşturulmuştur"
 # ----------------
 
